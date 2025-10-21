@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { theme } from '../styles/theme';
+import hospitalImage from '../assets/images/francisco-javier-valerio-trujillo-WLMjiAu2V00-unsplash.jpg';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -94,7 +95,7 @@ const Home = () => {
               color: theme.colors.text.primary,
               margin: 0
             }}>
-              TRINITY Hospital
+              TEAM 2 Hospital
             </h1>
           </div>
           <button 
@@ -118,66 +119,105 @@ const Home = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section with Hospital Image */}
       <div style={{
-        background: `linear-gradient(135deg, ${theme.colors.primary.main}15, ${theme.colors.secondary.main}15)`,
-        padding: '5rem 2rem',
-        textAlign: 'center'
+        position: 'relative',
+        height: '600px',
+        overflow: 'hidden'
       }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2 style={{
-            fontSize: '3.5rem',
-            fontWeight: 700,
-            color: theme.colors.text.primary,
-            marginBottom: '1rem'
-          }}>
-            Your Health, Our Priority
-          </h2>
-          <p style={{
-            fontSize: '1.25rem',
-            color: theme.colors.text.secondary,
-            marginBottom: '2.5rem',
-            maxWidth: '700px',
-            margin: '0 auto 2.5rem',
-            lineHeight: 1.6
-          }}>
-            Providing compassionate, quality healthcare services with state-of-the-art facilities and experienced medical professionals committed to your well-being.
-          </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => navigate('/login')}
-              style={{
-                backgroundColor: theme.colors.secondary.main,
-                color: 'white',
-                padding: '1rem 2.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                fontSize: '1.125rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                transition: 'all 0.3s'
-              }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-            >
-              Book Appointment
-            </button>
-            <button
-              style={{
-                backgroundColor: 'transparent',
-                color: theme.colors.primary.main,
-                padding: '1rem 2.5rem',
-                borderRadius: '0.5rem',
-                border: `2px solid ${theme.colors.primary.main}`,
-                fontSize: '1.125rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s'
-              }}
-            >
-              Emergency Contact
-            </button>
+        {/* Background Image */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundImage: `url(${hospitalImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: 'brightness(0.6)',
+          zIndex: 0
+        }}></div>
+        
+        {/* Overlay Content */}
+        <div style={{
+          position: 'relative',
+          zIndex: 1,
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          padding: '2rem'
+        }}>
+          <div style={{ maxWidth: '900px' }}>
+            <h2 style={{
+              fontSize: '4rem',
+              fontWeight: 700,
+              color: 'white',
+              marginBottom: '1.5rem',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+            }}>
+              Your Health, Our Priority
+            </h2>
+            <p style={{
+              fontSize: '1.5rem',
+              color: 'white',
+              marginBottom: '3rem',
+              lineHeight: 1.6,
+              textShadow: '1px 1px 3px rgba(0,0,0,0.5)'
+            }}>
+              Providing compassionate, quality healthcare services with state-of-the-art facilities
+            </p>
+            <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => navigate('/login')}
+                style={{
+                  backgroundColor: theme.colors.secondary.main,
+                  color: 'white',
+                  padding: '1.25rem 3rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  fontSize: '1.25rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  transition: 'all 0.3s'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = 'translateY(-3px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                }}
+              >
+                Book Appointment
+              </button>
+              <button
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'white',
+                  padding: '1.25rem 3rem',
+                  borderRadius: '0.5rem',
+                  border: '2px solid white',
+                  fontSize: '1.25rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  backdropFilter: 'blur(5px)'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.backgroundColor = 'rgba(255,255,255,0.2)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.backgroundColor = 'transparent';
+                }}
+              >
+                Emergency Contact
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -411,7 +451,7 @@ const Home = () => {
               <div style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: '0.875rem', color: theme.colors.text.secondary }}>Email Us</div>
                 <div style={{ fontSize: '1.125rem', fontWeight: 600, color: theme.colors.text.primary }}>
-                  care@trinityhospital.com
+                  care@team2hospital.com
                 </div>
               </div>
             </div>
@@ -433,7 +473,7 @@ const Home = () => {
             marginBottom: '2rem'
           }}>
             <div>
-              <h4 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 600 }}>TRINITYHospital</h4>
+              <h4 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 600 }}>TEAM 2 Hospital</h4>
               <p style={{ opacity: 0.8, lineHeight: 1.6, fontSize: '0.95rem' }}>
                 Dedicated to providing exceptional healthcare services with compassion and excellence since 2000.
               </p>
@@ -461,7 +501,7 @@ const Home = () => {
             paddingTop: '2rem',
             textAlign: 'center'
           }}>
-            <p style={{ margin: 0, opacity: 0.8 }}>© 2025 TRINITY Hospital. All rights reserved.</p>
+            <p style={{ margin: 0, opacity: 0.8 }}>© 2025 TEAM 2 Hospital. All rights reserved.</p>
             <p style={{ margin: '0.5rem 0 0', fontSize: '0.875rem', opacity: 0.6 }}>
               Excellence in Healthcare Since 2000
             </p>
