@@ -2,30 +2,19 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
-import NotFound from '../pages/NotFound';
+import PharmacistDashboard from '../modules/pharmacist/pages/Dashboard';
+import ViewAllPrescriptions from '../modules/pharmacist/pages/ViewAllPrescriptions';
 import Unauthorized from '../pages/Unauthorized';
+import NotFound from '../pages/NotFound';
 
 const AppRouter = () => {
   return (
     <Routes>
-      {/* Public Routes */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/pharmacist/dashboard" element={<PharmacistDashboard />} />
+      <Route path="/pharmacist/prescriptions" element={<ViewAllPrescriptions />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
-
-      {/* Protected Routes - Will be added later */}
-      {/* Example:
-      <Route 
-        path="/admin/*" 
-        element={
-          <PrivateRoute allowedRoles={['ADMIN']}>
-            <AdminModule />
-          </PrivateRoute>
-        } 
-      />
-      */}
-
-      {/* 404 Not Found - Must be last */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

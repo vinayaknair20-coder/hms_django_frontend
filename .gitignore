@@ -109,3 +109,9 @@ dist
 # Temporary folders
 tmp/
 temp/
+
+
+# Environment variables
+.env
+.env.local
+.env.production

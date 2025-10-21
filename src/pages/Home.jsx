@@ -95,7 +95,7 @@ const Home = () => {
               color: theme.colors.text.primary,
               margin: 0
             }}>
-              TEAM 2 Hospital
+              Trinity Hospital
             </h1>
           </div>
           <button 
@@ -169,36 +169,12 @@ const Home = () => {
             }}>
               Providing compassionate, quality healthcare services with state-of-the-art facilities
             </p>
+            {/* Only Emergency Contact Button */}
             <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
-                onClick={() => navigate('/login')}
                 style={{
-                  backgroundColor: theme.colors.secondary.main,
-                  color: 'white',
-                  padding: '1.25rem 3rem',
-                  borderRadius: '0.5rem',
-                  border: 'none',
-                  fontSize: '1.25rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                  transition: 'all 0.3s'
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.transform = 'translateY(-3px)';
-                  e.target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-                }}
-              >
-                Book Appointment
-              </button>
-              <button
-                style={{
-                  backgroundColor: 'transparent',
-                  color: 'white',
+                  backgroundColor: 'white',
+                  color: theme.colors.primary.main,
                   padding: '1.25rem 3rem',
                   borderRadius: '0.5rem',
                   border: '2px solid white',
@@ -206,16 +182,20 @@ const Home = () => {
                   fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'all 0.3s',
-                  backdropFilter: 'blur(5px)'
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
                 }}
                 onMouseOver={(e) => {
-                  e.target.style.backgroundColor = 'rgba(255,255,255,0.2)';
+                  e.target.style.backgroundColor = 'rgba(255,255,255,0.9)';
+                  e.target.style.transform = 'translateY(-3px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
                 }}
                 onMouseOut={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
                 }}
               >
-                Emergency Contact
+                📞 Emergency Contact
               </button>
             </div>
           </div>
@@ -451,7 +431,7 @@ const Home = () => {
               <div style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: '0.875rem', color: theme.colors.text.secondary }}>Email Us</div>
                 <div style={{ fontSize: '1.125rem', fontWeight: 600, color: theme.colors.text.primary }}>
-                  care@team2hospital.com
+                  care@trinityhospital.com
                 </div>
               </div>
             </div>
@@ -473,7 +453,7 @@ const Home = () => {
             marginBottom: '2rem'
           }}>
             <div>
-              <h4 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 600 }}>TEAM 2 Hospital</h4>
+              <h4 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 600 }}>Trinity Hospital</h4>
               <p style={{ opacity: 0.8, lineHeight: 1.6, fontSize: '0.95rem' }}>
                 Dedicated to providing exceptional healthcare services with compassion and excellence since 2000.
               </p>
@@ -501,7 +481,7 @@ const Home = () => {
             paddingTop: '2rem',
             textAlign: 'center'
           }}>
-            <p style={{ margin: 0, opacity: 0.8 }}>© 2025 TEAM 2 Hospital. All rights reserved.</p>
+            <p style={{ margin: 0, opacity: 0.8 }}>© 2025 Trinity Hospital. All rights reserved.</p>
             <p style={{ margin: '0.5rem 0 0', fontSize: '0.875rem', opacity: 0.6 }}>
               Excellence in Healthcare Since 2000
             </p>
