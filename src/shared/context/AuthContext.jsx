@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Check if user is already logged in on mount
   useEffect(() => {
     const checkAuth = () => {
       const userData = authAPI.getCurrentUser();
@@ -29,36 +28,31 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       console.log('🔐 AuthContext login called with:', credentials);
-      console.log('🔐 Username:', credentials?.username);
-      console.log('🔐 Password:', credentials?.password ? 'Yes' : 'No');
-      
-      // ✅ PASS credentials object DIRECTLY to authAPI.login
+      console.log('🔐 Username:', credentials.username);
+      console.log('🔐 Password:', credentials.password ? 'Yes' : 'No');
+
       const data = await authAPI.login(credentials);
       
       console.log('✅ User logged in:', data.user);
       console.log('🎭 User role:', data.user?.role);
-      
+
       setUser(data.user);
       setIsAuthenticated(true);
-      
-      const role = data.user?.role;
-      
-      // Define role routes
+
+      // Map roles to routes (MATCHING YOUR APPROUTER!)
       const roleRoutes = {
-        'Admin': '/admin/dashboard',
-        'Doctor': '/doctor/dashboard',
-        'Receptionist': '/receptionist/dashboard',
-        'Pharmacist': '/pharmacist/dashboard',
-        'Lab Technician': '/lab/dashboard',
+        'Admin': '/admin',
+        'Doctor': '/doctor',
+        'Receptionist': '/receptionist',
+        'Pharmacist': '/pharmacist',
+        'Lab Technician': '/lab-tech',
       };
-      
-      const redirectPath = roleRoutes[role] || '/unauthorized';
+
+      const redirectPath = roleRoutes[data.user?.role] || '/';
       console.log('🚀 Navigating to:', redirectPath);
       
-      // Use setTimeout to ensure state is updated before navigation
-      setTimeout(() => {
-        navigate(redirectPath, { replace: true });
-      }, 100);
+      // Use window.location for guaranteed redirect
+      window.location.href = redirectPath;
       
     } catch (err) {
       console.error('❌ Login error in AuthContext:', err);
@@ -76,17 +70,32 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  return (
-    <AuthContext.Provider value={{ user, isAuthenticated, loading, error, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const getUserName = () => {
+    if (!user) return 'User';
+    return user.first_name && user.last_name
+      ? `${user.first_name} ${user.last_name}`
+      : user.username || 'User';
+  };
+
+  const value = {
+    user,
+    isAuthenticated,
+    loading,
+    error,
+    login,
+    logout,
+    getUserName,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
 };
+
+export default AuthContext;

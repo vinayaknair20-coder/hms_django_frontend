@@ -1,149 +1,198 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getAllMedicines, getPendingPrescriptions } from '../../../shared/api/pharmacistAPI';
 import { useAuth } from '../../../shared/context/AuthContext';
-import { Package, AlertTriangle, FileText, TrendingUp, Pill, ShoppingCart } from 'lucide-react';
 
 const PharmacistDashboard = () => {
-  const { user, logout } = useAuth();
-  
-  const [stats] = useState({
-    pendingPrescriptions: 15,
-    lowStockItems: 8,
-    dispensedToday: 42,
-    totalMedicines: 256
-  });
+  const { user, logout, getUserName } = useAuth();
+  const navigate = useNavigate();
+  const [medicines, setMedicines] = useState([]);
+  const [pendingPrescriptions, setPendingPrescriptions] = useState([]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // Get medicines
+        const medicinesData = await getAllMedicines();
+        setMedicines(medicinesData);
+        
+        // Try to get pending prescriptions, but don't break if it fails
+        try {
+          const pendingData = await getPendingPrescriptions();
+          setPendingPrescriptions(pendingData.pending_prescriptions || []);
+        } catch (prescError) {
+          console.warn('Could not fetch pending prescriptions:', prescError);
+          setPendingPrescriptions([]);
+        }
+        
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Pharmacist Dashboard</h1>
-              <p className="text-sm text-gray-600">Welcome, {user?.username}</p>
-            </div>
-            <button
-              onClick={logout}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-            >
-              Logout
-            </button>
-          </div>
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <h1>💊 Pharmacist Dashboard</h1>
+        <div style={styles.userInfo}>
+          <span style={styles.userName}>{getUserName()}</span>
+          <button onClick={logout} style={styles.logoutBtn}>
+            Logout
+          </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Pending Prescriptions</p>
-                <p className="text-3xl font-bold text-blue-600">{stats.pendingPrescriptions}</p>
-              </div>
-              <FileText className="h-12 w-12 text-blue-600 opacity-20" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Low Stock Items</p>
-                <p className="text-3xl font-bold text-red-600">{stats.lowStockItems}</p>
-              </div>
-              <AlertTriangle className="h-12 w-12 text-red-600 opacity-20" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Dispensed Today</p>
-                <p className="text-3xl font-bold text-green-600">{stats.dispensedToday}</p>
-              </div>
-              <TrendingUp className="h-12 w-12 text-green-600 opacity-20" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Medicines</p>
-                <p className="text-3xl font-bold text-purple-600">{stats.totalMedicines}</p>
-              </div>
-              <Package className="h-12 w-12 text-purple-600 opacity-20" />
-            </div>
-          </div>
+      <main style={styles.main}>
+        <div style={styles.welcomeCard}>
+          <h2>Welcome, {getUserName()}! 💊</h2>
+          <p>Manage pharmacy inventory and prescriptions</p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="flex items-center justify-center gap-2 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg hover:bg-blue-100 transition">
-              <Pill className="h-5 w-5 text-blue-600" />
-              <span className="font-medium text-blue-600">Dispense Medicine</span>
+        <div style={styles.grid}>
+          <div style={styles.card}>
+            <h3>💊 Medicines</h3>
+            <p className="stat">{medicines.length} In Stock</p>
+            <button 
+              style={styles.actionBtn}
+              onClick={() => navigate('/pharmacist/medicines')}
+            >
+              View Medicines
             </button>
-            <button className="flex items-center justify-center gap-2 p-4 bg-green-50 border-2 border-green-200 rounded-lg hover:bg-green-100 transition">
-              <Package className="h-5 w-5 text-green-600" />
-              <span className="font-medium text-green-600">Update Inventory</span>
+          </div>
+
+          <div style={styles.card}>
+            <h3>📋 Prescriptions</h3>
+            <p className="stat">{pendingPrescriptions.length} Pending</p>
+            <button 
+              style={styles.actionBtn}
+              onClick={() => navigate('/pharmacist/prescriptions')}
+            >
+              View Prescriptions
             </button>
-            <button className="flex items-center justify-center gap-2 p-4 bg-purple-50 border-2 border-purple-200 rounded-lg hover:bg-purple-100 transition">
-              <ShoppingCart className="h-5 w-5 text-purple-600" />
-              <span className="font-medium text-purple-600">Order Supplies</span>
+          </div>
+
+          <div style={styles.card}>
+            <h3>💰 Billing</h3>
+            <p className="stat">Quick Sale</p>
+            <button 
+              style={styles.actionBtn}
+              onClick={() => navigate('/pharmacist/quick-sale')}
+            >
+              Start Billing
+            </button>
+          </div>
+
+          <div style={styles.card}>
+            <h3>⚠️ Stock Alerts</h3>
+            <p className="stat">Check Low Stock</p>
+            <button 
+              style={styles.actionBtn}
+              onClick={() => navigate('/pharmacist/stock-alerts')}
+            >
+              View Alerts
             </button>
           </div>
         </div>
 
-        {/* Pending Prescriptions Table */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Pending Prescriptions</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prescription ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Doctor</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">RX-001</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">John Doe</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dr. Smith</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                      Pending
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <button className="text-blue-600 hover:text-blue-900">Dispense</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">RX-002</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Jane Smith</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dr. Johnson</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      Ready
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <button className="text-green-600 hover:text-green-900">Complete</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div style={styles.infoBox}>
+          <h3>👨‍⚕️ Pharmacist Profile</h3>
+          <p><strong>User ID:</strong> {user?.id}</p>
+          <p><strong>Name:</strong> {getUserName()}</p>
+          <p><strong>Email:</strong> {user?.email || 'N/A'}</p>
+          <p>
+            <strong>Role:</strong>{' '}
+            <span style={styles.roleBadge}>{user?.role}</span>
+          </p>
         </div>
       </main>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+  },
+  header: {
+    background: 'white',
+    padding: '1.5rem 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+  },
+  userInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+  },
+  userName: {
+    fontWeight: 600,
+    color: '#333',
+  },
+  logoutBtn: {
+    padding: '0.5rem 1.5rem',
+    background: '#ef4444',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: 600,
+  },
+  main: {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '2rem',
+  },
+  welcomeCard: {
+    background: 'white',
+    borderRadius: '12px',
+    padding: '2rem',
+    marginBottom: '2rem',
+    textAlign: 'center',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: '1.5rem',
+    marginBottom: '2rem',
+  },
+  card: {
+    background: 'white',
+    borderRadius: '12px',
+    padding: '1.5rem',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+  },
+  actionBtn: {
+    marginTop: '1rem',
+    padding: '0.5rem 1rem',
+    background: '#f59e0b',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    width: '100%',
+    fontWeight: 600,
+    transition: 'all 0.3s ease',
+  },
+  infoBox: {
+    background: 'white',
+    borderRadius: '12px',
+    padding: '1.5rem',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+  },
+  roleBadge: {
+    background: '#f59e0b',
+    color: 'white',
+    padding: '0.25rem 0.75rem',
+    borderRadius: '12px',
+    fontSize: '0.9rem',
+  },
 };
 
 export default PharmacistDashboard;
