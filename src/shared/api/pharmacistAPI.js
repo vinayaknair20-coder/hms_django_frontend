@@ -1,66 +1,144 @@
 // src/shared/api/pharmacistAPI.js
-import axios from 'axios';
-import { config } from './config';
+import axiosInstance from '../utils/axiosInstance';
 
-const api = axios.create({
-  baseURL: config.apiUrl,
-  timeout: config.timeout,
-  headers: config.headers,
-});
+// ========================
+// MEDICINE ENDPOINTS
+// ========================
 
-// Request interceptor
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        const response = await axios.post(`${config.apiUrl}/api/token/refresh/`, {
-          refresh: refreshToken,
-        });
-        const { access } = response.data;
-        localStorage.setItem('access_token', access);
-        originalRequest.headers.Authorization = `Bearer ${access}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        localStorage.clear();
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
-
-// Use existing backend endpoints
-const getMedicines = () => {
-  return api.get('/api/pharmacist/medicines/');
+// Get all medicines
+export const getAllMedicines = async () => {
+  const response = await axiosInstance.get('/api/pharmacist/medicines/');
+  return response.data;
 };
 
-const getPrescriptionMedicines = () => {
-  return api.get('/api/pharmacist/prescriptionmedicines/');
+// Get single medicine
+export const getMedicine = async (id) => {
+  const response = await axiosInstance.get(`/api/pharmacist/medicines/${id}/`);
+  return response.data;
 };
 
-const updateMedicineStock = (medicineId, data) => {
-  return api.patch(`/api/pharmacist/medicines/${medicineId}/`, data);
+// Add new medicine
+export const addMedicine = async (data) => {
+  const response = await axiosInstance.post('/api/pharmacist/medicines/', data);
+  return response.data;
 };
 
-export const pharmacistAPI = {
-  getMedicines,
-  getPrescriptionMedicines,
-  updateMedicineStock,
+// Update medicine
+export const updateMedicine = async (id, data) => {
+  const response = await axiosInstance.put(`/api/pharmacist/medicines/${id}/`, data);
+  return response.data;
+};
+
+// Delete medicine
+export const deleteMedicine = async (id) => {
+  const response = await axiosInstance.delete(`/api/pharmacist/medicines/${id}/`);
+  return response.data;
+};
+
+// Get low stock medicines
+export const getLowStockMedicines = async () => {
+  const response = await axiosInstance.get('/api/pharmacist/medicines/low-stock/');
+  return response.data;
+};
+
+// ========================
+// PRESCRIPTION ENDPOINTS
+// ========================
+
+// Get pending prescriptions
+export const getPendingPrescriptions = async () => {
+  const response = await axiosInstance.get('/api/pharmacist/medicinebilling/pending-prescriptions/');
+  return response.data;
+};
+
+// Get all prescriptions (alias)
+export const getAllPrescriptions = async () => {
+  const response = await axiosInstance.get('/api/pharmacist/medicinebilling/pending-prescriptions/');
+  return response.data;
+};
+
+// Dispense prescription
+export const dispensePrescription = async (prescriptionId) => {
+  const response = await axiosInstance.post(`/api/pharmacist/medicinebilling/${prescriptionId}/dispense/`);
+  return response.data;
+};
+
+// ========================
+// STOCK HISTORY ENDPOINTS
+// ========================
+
+// Get stock history
+export const getStockHistory = async () => {
+  const response = await axiosInstance.get('/api/pharmacist/medicinestockhistory/');
+  return response.data;
+};
+
+// Add stock history entry
+export const addStockHistory = async (data) => {
+  const response = await axiosInstance.post('/api/pharmacist/medicinestockhistory/', data);
+  return response.data;
+};
+
+// ========================
+// MEDICINE BILLING ENDPOINTS
+// ========================
+
+// Get all billing records
+export const getAllBillingRecords = async () => {
+  const response = await axiosInstance.get('/api/pharmacist/medicinebilling/');
+  return response.data;
+};
+
+// Get single billing record
+export const getBillingRecord = async (id) => {
+  const response = await axiosInstance.get(`/api/pharmacist/medicinebilling/${id}/`);
+  return response.data;
+};
+
+// Create billing record
+export const createBillingRecord = async (data) => {
+  const response = await axiosInstance.post('/api/pharmacist/medicinebilling/', data);
+  return response.data;
+};
+
+// Get billing summary
+export const getBillingSummary = async () => {
+  const response = await axiosInstance.get('/api/pharmacist/medicinebilling/billing-summary/');
+  return response.data;
+};
+
+// ========================
+// QUICK SALE ENDPOINT
+// ========================
+
+// Process quick sale
+export const processQuickSale = async (saleData) => {
+  const response = await axiosInstance.post('/api/pharmacist/medicines/quick-sale/', saleData);
+  return response.data;
+};
+
+// ========================
+// PRESCRIPTION MEDICINE ENDPOINTS
+// ========================
+
+// Get all prescription medicines
+export const getAllPrescriptionMedicines = async () => {
+  const response = await axiosInstance.get('/api/pharmacist/prescriptionmedicines/');
+  return response.data;
+};
+
+// Get single prescription medicine
+export const getPrescriptionMedicine = async (id) => {
+  const response = await axiosInstance.get(`/api/pharmacist/prescriptionmedicines/${id}/`);
+  return response.data;
+};
+
+// ========================
+// PHARMACIST PROFILE
+// ========================
+
+// Get pharmacist profile
+export const getPharmacistProfile = async () => {
+  const response = await axiosInstance.get('/api/pharmacist/me/');
+  return response.data;
 };
