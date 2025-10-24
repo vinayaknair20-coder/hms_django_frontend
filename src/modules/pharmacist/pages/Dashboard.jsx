@@ -1,198 +1,158 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getAllMedicines, getPendingPrescriptions } from '../../../shared/api/pharmacistAPI';
-import { useAuth } from '../../../shared/context/AuthContext';
+// src/modules/pharmacist/pages/Dashboard.jsx
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Add this import
+import { pharmacistAPI } from '../../../shared/api/pharmacistAPI';
+import './PharmacistDashboard.css';
 
 const PharmacistDashboard = () => {
-  const { user, logout, getUserName } = useAuth();
-  const navigate = useNavigate();
-  const [medicines, setMedicines] = useState([]);
-  const [pendingPrescriptions, setPendingPrescriptions] = useState([]);
+  const navigate = useNavigate(); // Add this hook
+  const [activeSection, setActiveSection] = useState('overview');
+  const [stats, setStats] = useState({
+    pendingPrescriptions: 0,
+    lowStockItems: 0,
+    todayDispensed: 0,
+    totalInventory: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchDashboardStats = async () => {
       try {
-        // Get medicines
-        const medicinesData = await getAllMedicines();
-        setMedicines(medicinesData);
-        
-        // Try to get pending prescriptions, but don't break if it fails
-        try {
-          const pendingData = await getPendingPrescriptions();
-          setPendingPrescriptions(pendingData.pending_prescriptions || []);
-        } catch (prescError) {
-          console.warn('Could not fetch pending prescriptions:', prescError);
-          setPendingPrescriptions([]);
-        }
-        
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        setLoading(true);
+        setError(null);
+        const data = await pharmacistAPI.getDashboardStats();
+        setStats(data);
+      } catch (err) {
+        console.error('Dashboard error:', err);
+        setError('Failed to load dashboard data. Please check your connection.');
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchDashboardData();
+    fetchDashboardStats();
   }, []);
 
+  // Navigation handlers
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner">Loading dashboard...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <div className="error-message">
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1>💊 Pharmacist Dashboard</h1>
-        <div style={styles.userInfo}>
-          <span style={styles.userName}>{getUserName()}</span>
-          <button onClick={logout} style={styles.logoutBtn}>
-            Logout
-          </button>
+    <div className="pharmacist-container">
+      <header className="dashboard-header">
+        <h1>Pharmacist Dashboard</h1>
+        <div className="user-info">
+          <span>Welcome, Pharmacist</span>
+          <button className="logout-btn">Logout</button>
         </div>
       </header>
 
-      <main style={styles.main}>
-        <div style={styles.welcomeCard}>
-          <h2>Welcome, {getUserName()}! 💊</h2>
-          <p>Manage pharmacy inventory and prescriptions</p>
-        </div>
-
-        <div style={styles.grid}>
-          <div style={styles.card}>
-            <h3>💊 Medicines</h3>
-            <p className="stat">{medicines.length} In Stock</p>
-            <button 
-              style={styles.actionBtn}
-              onClick={() => navigate('/pharmacist/medicines')}
-            >
-              View Medicines
-            </button>
-          </div>
-
-          <div style={styles.card}>
-            <h3>📋 Prescriptions</h3>
-            <p className="stat">{pendingPrescriptions.length} Pending</p>
-            <button 
-              style={styles.actionBtn}
-              onClick={() => navigate('/pharmacist/prescriptions')}
-            >
-              View Prescriptions
-            </button>
-          </div>
-
-          <div style={styles.card}>
-            <h3>💰 Billing</h3>
-            <p className="stat">Quick Sale</p>
-            <button 
-              style={styles.actionBtn}
-              onClick={() => navigate('/pharmacist/quick-sale')}
-            >
-              Start Billing
-            </button>
-          </div>
-
-          <div style={styles.card}>
-            <h3>⚠️ Stock Alerts</h3>
-            <p className="stat">Check Low Stock</p>
-            <button 
-              style={styles.actionBtn}
-              onClick={() => navigate('/pharmacist/stock-alerts')}
-            >
-              View Alerts
-            </button>
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon pending">📋</div>
+          <div className="stat-content">
+            <h3>{stats.pendingPrescriptions}</h3>
+            <p>Pending Prescriptions</p>
           </div>
         </div>
-
-        <div style={styles.infoBox}>
-          <h3>👨‍⚕️ Pharmacist Profile</h3>
-          <p><strong>User ID:</strong> {user?.id}</p>
-          <p><strong>Name:</strong> {getUserName()}</p>
-          <p><strong>Email:</strong> {user?.email || 'N/A'}</p>
-          <p>
-            <strong>Role:</strong>{' '}
-            <span style={styles.roleBadge}>{user?.role}</span>
-          </p>
+        
+        <div className="stat-card">
+          <div className="stat-icon warning">⚠️</div>
+          <div className="stat-content">
+            <h3>{stats.lowStockItems}</h3>
+            <p>Low Stock Alerts</p>
+          </div>
         </div>
-      </main>
+        
+        <div className="stat-card">
+          <div className="stat-icon success">✓</div>
+          <div className="stat-content">
+            <h3>{stats.todayDispensed}</h3>
+            <p>Dispensed Today</p>
+          </div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-icon inventory">📦</div>
+          <div className="stat-content">
+            <h3>{stats.totalInventory}</h3>
+            <p>Total Items</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="action-grid">
+        <button 
+          className="action-btn"
+          onClick={() => handleNavigation('/pharmacist/prescriptions')}
+        >
+          <span className="btn-icon">💊</span>
+          <span className="btn-text">View Prescriptions</span>
+        </button>
+        
+        <button 
+          className="action-btn"
+          onClick={() => handleNavigation('/pharmacist/dispense')}
+        >
+          <span className="btn-icon">📝</span>
+          <span className="btn-text">Dispense Medicine</span>
+        </button>
+        
+        <button 
+          className="action-btn"
+          onClick={() => handleNavigation('/pharmacist/medicines')}
+        >
+          <span className="btn-icon">📊</span>
+          <span className="btn-text">Manage Inventory</span>
+        </button>
+        
+        <button 
+          className="action-btn"
+          onClick={() => handleNavigation('/pharmacist/quick-sale')}
+        >
+          <span className="btn-icon">🛒</span>
+          <span className="btn-text">Quick Sale</span>
+        </button>
+        
+        <button 
+          className="action-btn"
+          onClick={() => handleNavigation('/pharmacist/reports')}
+        >
+          <span className="btn-icon">📈</span>
+          <span className="btn-text">View Reports</span>
+        </button>
+        
+        <button 
+          className="action-btn"
+          onClick={() => handleNavigation('/pharmacist/low-stock')}
+        >
+          <span className="btn-icon">⚠️</span>
+          <span className="btn-text">Low Stock Items</span>
+        </button>
+      </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-  },
-  header: {
-    background: 'white',
-    padding: '1.5rem 2rem',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-  },
-  userInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  userName: {
-    fontWeight: 600,
-    color: '#333',
-  },
-  logoutBtn: {
-    padding: '0.5rem 1.5rem',
-    background: '#ef4444',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontWeight: 600,
-  },
-  main: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '2rem',
-  },
-  welcomeCard: {
-    background: 'white',
-    borderRadius: '12px',
-    padding: '2rem',
-    marginBottom: '2rem',
-    textAlign: 'center',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '1.5rem',
-    marginBottom: '2rem',
-  },
-  card: {
-    background: 'white',
-    borderRadius: '12px',
-    padding: '1.5rem',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-  },
-  actionBtn: {
-    marginTop: '1rem',
-    padding: '0.5rem 1rem',
-    background: '#f59e0b',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    width: '100%',
-    fontWeight: 600,
-    transition: 'all 0.3s ease',
-  },
-  infoBox: {
-    background: 'white',
-    borderRadius: '12px',
-    padding: '1.5rem',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-  },
-  roleBadge: {
-    background: '#f59e0b',
-    color: 'white',
-    padding: '0.25rem 0.75rem',
-    borderRadius: '12px',
-    fontSize: '0.9rem',
-  },
 };
 
 export default PharmacistDashboard;

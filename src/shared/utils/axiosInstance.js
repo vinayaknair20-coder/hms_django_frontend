@@ -1,14 +1,16 @@
+// src/shared/utils/axiosInstance.js
 import axios from 'axios';
-import { API_BASE_URL } from '../api/config';
 
 const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: 'http://localhost:8000', // Your Django backend URL
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-  },
+    'Accept': 'application/json'
+  }
 });
 
-// Request interceptor - Add token to every request
+// Request interceptor to add auth token
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -17,38 +19,31 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
-// Response interceptor - Handle token refresh
+// Response interceptor to handle errors
 axiosInstance.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // If 401 and we haven't tried refreshing yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
-          refresh: refreshToken,
-        });
-
-        const { access } = response.data;
-        localStorage.setItem('access_token', access);
-
-        originalRequest.headers.Authorization = `Bearer ${access}`;
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // Refresh failed - logout user
-        localStorage.clear();
-        window.location.href = '/';
-        return Promise.reject(refreshError);
+  (error) => {
+    if (error.response) {
+      // Server responded with error
+      console.error('API Error:', error.response.status, error.response.data);
+      
+      if (error.response.status === 401) {
+        // Unauthorized - redirect to login
+        localStorage.removeItem('access_token');
+        window.location.href = '/login';
       }
+    } else if (error.request) {
+      // Request made but no response
+      console.error('No response from server:', error.request);
+    } else {
+      // Something else happened
+      console.error('Error:', error.message);
     }
-
     return Promise.reject(error);
   }
 );
