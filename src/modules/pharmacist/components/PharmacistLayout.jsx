@@ -1,17 +1,22 @@
 import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaPills, FaClipboardList, FaHistory, FaSignOutAlt, FaHome, FaUser } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
 const PharmacistLayout = ({ children }) => {
-  const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   const handleLogout = () => {
+    // Clear all storage
     localStorage.clear();
+    sessionStorage.clear();
+    
+    // Show success message
     toast.success('Logged out successfully!');
-    navigate('/');
+    
+    // Force complete page reload to login (bypasses React Router)
+    window.location.href = '/login';
   };
 
   const navItems = [

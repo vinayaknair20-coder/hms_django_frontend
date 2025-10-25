@@ -1,26 +1,25 @@
 // src/modules/pharmacist/pages/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate } from 'react-router-dom';
 import { pharmacistAPI } from '../../../shared/api/pharmacistAPI';
 import './PharmacistDashboard.css';
 
 const PharmacistDashboard = () => {
-  const navigate = useNavigate(); // Add this hook
-  const [activeSection, setActiveSection] = useState('overview');
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     pendingPrescriptions: 0,
     lowStockItems: 0,
     todayDispensed: 0,
-    totalInventory: 0
+    totalInventory: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
-        setError(null);
         const data = await pharmacistAPI.getDashboardStats();
         setStats(data);
       } catch (err) {
@@ -30,13 +29,17 @@ const PharmacistDashboard = () => {
         setLoading(false);
       }
     };
-
     fetchDashboardStats();
   }, []);
 
-  // Navigation handlers
   const handleNavigation = (path) => {
     navigate(path);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userRole');
+    navigate('/login');
   };
 
   if (loading) {
@@ -64,7 +67,7 @@ const PharmacistDashboard = () => {
         <h1>Pharmacist Dashboard</h1>
         <div className="user-info">
           <span>Welcome, Pharmacist</span>
-          <button className="logout-btn">Logout</button>
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </header>
 
@@ -76,7 +79,6 @@ const PharmacistDashboard = () => {
             <p>Pending Prescriptions</p>
           </div>
         </div>
-        
         <div className="stat-card">
           <div className="stat-icon warning">⚠️</div>
           <div className="stat-content">
@@ -84,7 +86,6 @@ const PharmacistDashboard = () => {
             <p>Low Stock Alerts</p>
           </div>
         </div>
-        
         <div className="stat-card">
           <div className="stat-icon success">✓</div>
           <div className="stat-content">
@@ -92,7 +93,6 @@ const PharmacistDashboard = () => {
             <p>Dispensed Today</p>
           </div>
         </div>
-        
         <div className="stat-card">
           <div className="stat-icon inventory">📦</div>
           <div className="stat-content">
@@ -102,53 +102,38 @@ const PharmacistDashboard = () => {
         </div>
       </div>
 
+      {/* ✅ NOW 4 BUTTONS - Added Sales History */}
       <div className="action-grid">
-        <button 
+        <button
           className="action-btn"
           onClick={() => handleNavigation('/pharmacist/prescriptions')}
         >
           <span className="btn-icon">💊</span>
           <span className="btn-text">View Prescriptions</span>
         </button>
-        
-        <button 
-          className="action-btn"
-          onClick={() => handleNavigation('/pharmacist/dispense')}
-        >
-          <span className="btn-icon">📝</span>
-          <span className="btn-text">Dispense Medicine</span>
-        </button>
-        
-        <button 
+
+        <button
           className="action-btn"
           onClick={() => handleNavigation('/pharmacist/medicines')}
         >
           <span className="btn-icon">📊</span>
           <span className="btn-text">Manage Inventory</span>
         </button>
-        
-        <button 
+
+        <button
           className="action-btn"
           onClick={() => handleNavigation('/pharmacist/quick-sale')}
         >
           <span className="btn-icon">🛒</span>
           <span className="btn-text">Quick Sale</span>
         </button>
-        
-        <button 
+
+        <button
           className="action-btn"
-          onClick={() => handleNavigation('/pharmacist/reports')}
+          onClick={() => handleNavigation('/pharmacist/sales-history')}
         >
-          <span className="btn-icon">📈</span>
-          <span className="btn-text">View Reports</span>
-        </button>
-        
-        <button 
-          className="action-btn"
-          onClick={() => handleNavigation('/pharmacist/low-stock')}
-        >
-          <span className="btn-icon">⚠️</span>
-          <span className="btn-text">Low Stock Items</span>
+          <span className="btn-icon">📜</span>
+          <span className="btn-text">Sales History</span>
         </button>
       </div>
     </div>

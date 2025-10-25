@@ -31,8 +31,19 @@ const RoleBasedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
+  // Convert both user role and allowed roles to lowercase for case-insensitive comparison
+  const userRole = (user.role || '').toLowerCase().trim();
+  const rolesAllowed = (allowedRoles || []).map(role => 
+    (role || '').toLowerCase().trim()
+  );
+
+  console.log('🔍 Role Comparison:');
+  console.log('  - User role (normalized):', userRole);
+  console.log('  - Allowed roles (normalized):', rolesAllowed);
+  console.log('  - Is role allowed?:', rolesAllowed.includes(userRole));
+
   // Check if user's role is in allowed roles
-  if (!allowedRoles.includes(user.role)) {
+  if (!rolesAllowed.includes(userRole)) {
     console.log('❌ Role not allowed, redirecting to unauthorized');
     return <Navigate to="/unauthorized" replace />;
   }

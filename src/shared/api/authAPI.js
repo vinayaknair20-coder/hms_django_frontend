@@ -54,14 +54,25 @@ const authAPI = {
   },
 
   // ========================
-  // LOGOUT
+  // LOGOUT - COMPLETE CLEANUP
   // ========================
   logout: () => {
-    console.log('🚪 Logging out...');
+    console.log('🚪 Logging out - CLEARING ALL AUTH DATA');
+    
+    // Remove ALL auth-related items
     localStorage.removeItem('user');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    console.log('✅ Cleared localStorage');
+    
+    // Also clear any other potential auth data
+    localStorage.removeItem('authToken'); // In case you have this too
+    localStorage.removeItem('userRole');  // In case you have this too
+    
+    // Clear sessionStorage too
+    sessionStorage.clear();
+    
+    console.log('✅ ALL localStorage and sessionStorage cleared');
+    console.log('✅ Remaining localStorage items:', Object.keys(localStorage));
   },
 
   // ========================
@@ -78,6 +89,8 @@ const authAPI = {
         return user;
       } catch (error) {
         console.error('❌ Error parsing user data:', error);
+        // If there's an error, clear invalid data
+        authAPI.logout();
         return null;
       }
     }
@@ -90,7 +103,9 @@ const authAPI = {
   isAuthenticated: () => {
     const token = localStorage.getItem('access_token');
     const user = localStorage.getItem('user');
-    return !!(token && user);
+    const isAuth = !!(token && user);
+    console.log('🔍 isAuthenticated check:', isAuth);
+    return isAuth;
   },
 
   // ========================

@@ -1,5 +1,4 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import authAPI from '../api/authAPI';
 
 const AuthContext = createContext();
@@ -9,65 +8,76 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
+  // Check auth on mount
   useEffect(() => {
-    const checkAuth = () => {
-      const userData = authAPI.getCurrentUser();
-      if (userData) {
-        setUser(userData);
-        setIsAuthenticated(true);
-      }
-      setLoading(false);
-    };
     checkAuth();
   }, []);
+
+  const checkAuth = () => {
+    const userData = authAPI.getCurrentUser();
+    if (userData) {
+      setUser(userData);
+      setIsAuthenticated(true);
+    }
+    setLoading(false);
+  };
 
   const login = async (credentials) => {
     setLoading(true);
     setError(null);
     try {
-      console.log('🔐 AuthContext login called with:', credentials);
-      console.log('🔐 Username:', credentials.username);
-      console.log('🔐 Password:', credentials.password ? 'Yes' : 'No');
-
       const data = await authAPI.login(credentials);
       
-      console.log('✅ User logged in:', data.user);
-      console.log('🎭 User role:', data.user?.role);
-
+      console.log('✅ Login response:', data);
+      console.log('✅ User role:', data.user?.role);
+      
       setUser(data.user);
       setIsAuthenticated(true);
+      setLoading(false);
 
-      // Map roles to routes (MATCHING YOUR APPROUTER!)
+      // Redirect based on role (handle both lowercase and capitalized)
+      const role = (data.user?.role || '').toLowerCase();
+      console.log('🔀 Role (lowercase):', role);
+      
       const roleRoutes = {
-        'Admin': '/admin',
-        'Doctor': '/doctor',
-        'Receptionist': '/receptionist',
-        'Pharmacist': '/pharmacist',
-        'Lab Technician': '/lab-tech',
+        'admin': '/admin',
+        'doctor': '/doctor',
+        'receptionist': '/receptionist',
+        'pharmacist': '/pharmacist',
+        'lab technician': '/lab-tech',
+        'labtech': '/lab-tech',
       };
 
-      const redirectPath = roleRoutes[data.user?.role] || '/';
-      console.log('🚀 Navigating to:', redirectPath);
+      const redirectPath = roleRoutes[role] || '/login'; // ✅ Changed from '/home' to '/login'
+      console.log('🔀 Redirecting to:', redirectPath);
       
-      // Use window.location for guaranteed redirect
-      window.location.href = redirectPath;
+      // Use window.location for hard redirect
+      setTimeout(() => {
+        window.location.href = redirectPath;
+      }, 100);
       
     } catch (err) {
-      console.error('❌ Login error in AuthContext:', err);
+      console.error('❌ Login error:', err);
       setError(err.message || 'Login failed');
-      throw err;
-    } finally {
       setLoading(false);
+      throw err;
     }
   };
 
   const logout = () => {
+    console.log('🚪 Logout initiated');
+    
+    // Clear API storage first
     authAPI.logout();
+    
+    // Reset local state
     setUser(null);
     setIsAuthenticated(false);
-    navigate('/login');
+    setError(null);
+    
+    // ✅ Force hard redirect to login (works for ALL roles)
+    window.location.href = '/login';
   };
 
   const getUserName = () => {
@@ -77,17 +87,19 @@ export const AuthProvider = ({ children }) => {
       : user.username || 'User';
   };
 
-  const value = {
-    user,
-    isAuthenticated,
-    loading,
-    error,
-    login,
-    logout,
-    getUserName,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated,
+      loading,
+      error,
+      login,
+      logout,
+      getUserName,
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

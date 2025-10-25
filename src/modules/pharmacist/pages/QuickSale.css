@@ -1,0 +1,451 @@
+/* src/modules/pharmacist/pages/QuickSale.css */
+
+.quick-sale-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.quick-sale-container h1 {
+  color: var(--primary-color, #2c3e50);
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+/* ==================== LAYOUT ==================== */
+.sale-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* ==================== SEARCH SECTION ==================== */
+.search-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+}
+
+.search-section h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.search-box {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.search-box button {
+  padding: 0.75rem 1.5rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.search-box button:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.search-box button:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* ==================== SEARCH RESULTS ==================== */
+.search-results {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.medicine-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.medicine-result:hover {
+  background: #f8f9fa;
+}
+
+.medicine-result:last-child {
+  border-bottom: none;
+}
+
+.medicine-info h4 {
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.medicine-info p {
+  color: #7f8c8d;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.medicine-result button {
+  padding: 0.5rem 1rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.medicine-result button:hover {
+  background: #229954;
+}
+
+/* ==================== CART SECTION ==================== */
+.cart-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-section h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.empty-cart {
+  text-align: center;
+  color: #95a5a6;
+  padding: 3rem 1rem;
+  font-size: 1rem;
+}
+
+/* ==================== CART ITEMS ==================== */
+.cart-items {
+  flex: 1;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.item-details h4 {
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.item-details p {
+  color: #7f8c8d;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.item-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.item-controls input {
+  width: 60px;
+  padding: 0.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.item-controls button {
+  width: 32px;
+  height: 32px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-controls button:hover {
+  background: #c0392b;
+}
+
+/* ==================== CART TOTAL ==================== */
+.cart-total {
+  background: #ecf0f1;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.cart-total h3 {
+  color: #2c3e50;
+  margin: 0;
+  font-size: 1.5rem;
+  text-align: right;
+}
+
+/* ==================== CUSTOMER INFO ==================== */
+.customer-info {
+  margin-bottom: 1.5rem;
+}
+
+.customer-info h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.customer-info input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.customer-info input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* ==================== PROCESS SALE BUTTON ==================== */
+.process-sale-btn {
+  width: 100%;
+  padding: 1rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.process-sale-btn:hover:not(:disabled) {
+  background: #229954;
+}
+
+.process-sale-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* ==================== BILL MODAL ==================== */
+.bill-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.bill-modal h2 {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.bill-header {
+  background: #ecf0f1;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.bill-header p {
+  margin: 0.5rem 0;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+/* ==================== BILL TABLE ==================== */
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.bill-table thead {
+  background: #34495e;
+  color: white;
+}
+
+.bill-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.bill-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  color: #2c3e50;
+}
+
+.bill-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+/* ==================== BILL TOTAL ==================== */
+.bill-total {
+  background: #27ae60;
+  color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.bill-total h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.payment-status {
+  margin: 0;
+  text-align: center;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.bill-modal button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.bill-modal button:hover {
+  background: #2980b9;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 992px) {
+  .sale-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .quick-sale-container {
+    padding: 1rem;
+  }
+
+  .quick-sale-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .search-section,
+  .cart-section {
+    padding: 1.5rem;
+  }
+
+  .bill-modal {
+    padding: 1.5rem;
+  }
+}
+
+/* ==================== SCROLLBAR ==================== */
+.search-results::-webkit-scrollbar,
+.cart-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-results::-webkit-scrollbar-track,
+.cart-items::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.search-results::-webkit-scrollbar-thumb,
+.cart-items::-webkit-scrollbar-thumb {
+  background: #bdc3c7;
+  border-radius: 3px;
+}
+
+.search-results::-webkit-scrollbar-thumb:hover,
+.cart-items::-webkit-scrollbar-thumb:hover {
+  background: #95a5a6;
+}
+
+/* ==================== PRINT STYLES ==================== */
+@media print {
+  .bill-modal button {
+    display: none;
+  }
+  
+  body * {
+    visibility: hidden;
+  }
+  
+  .bill-modal,
+  .bill-modal * {
+    visibility: visible;
+  }
+  
+  .bill-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}

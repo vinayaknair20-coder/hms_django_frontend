@@ -21,7 +21,8 @@ const Login = () => {
 
     try {
       await login({ username, password });
-      // Navigation happens in AuthContext - no need to navigate here
+      // ✅ Navigation happens in AuthContext with window.location.href
+      // No need to navigate here - it's handled automatically
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message || 'Login failed. Please check your credentials.');
@@ -91,11 +92,12 @@ const Login = () => {
           </form>
 
           <div className="test-credentials">
-            <p className="test-title">📋 Test Credentials:</p>
-            <p className="test-item"><strong>Admin:</strong> admin / admin123</p>
-            <p className="test-item"><strong>Doctor:</strong> doctor1 / doctor123</p>
-            <p className="test-item"><strong>Pharmacist:</strong> pharmacist / pharmacist123</p>
-          </div>
+  <p className="test-title">📋 Test Credentials:</p>
+  <p className="test-item"><strong>Admin:</strong> admin / admin123</p>
+  <p className="test-item"><strong>Doctor:</strong> doctor1 / doctor123</p>
+  <p className="test-item"><strong>Receptionist:</strong> recep / recep1234</p>
+  <p className="test-item"><strong>Pharmacist:</strong> pharmacist / pharmacist123</p>
+</div>
         </div>
       </div>
     </div>

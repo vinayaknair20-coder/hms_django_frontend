@@ -1,38 +1,20 @@
-// src/modules/pharmacist/pages/ViewAllMedicines.jsx
 import React, { useState, useEffect } from 'react';
-import { getMedicines, deleteMedicine, searchMedicines } from '../../../shared/api/pharmacistAPI';
-import { useNavigate } from 'react-router-dom';
+import { getMedicines, deleteMedicine } from '../../../shared/api/pharmacistAPI';
+import { useNavigate, Link } from 'react-router-dom';
 import './ViewAllMedicines.css';
 
 const ViewAllMedicines = () => {
   const navigate = useNavigate();
   const [medicines, setMedicines] = useState([]);
-  const [filteredMedicines, setFilteredMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Fetch medicines on component mount
   useEffect(() => {
     fetchMedicines();
   }, []);
-
-  // Filter medicines when search term changes
-  useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredMedicines(medicines);
-    } else {
-      const filtered = medicines.filter(medicine =>
-        medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (medicine.generic_name && medicine.generic_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (medicine.category && medicine.category.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-      setFilteredMedicines(filtered);
-    }
-    setCurrentPage(1); // Reset to first page when searching
-  }, [searchTerm, medicines]);
 
   const fetchMedicines = async () => {
     try {
@@ -40,10 +22,8 @@ const ViewAllMedicines = () => {
       setError(null);
       const data = await getMedicines();
       setMedicines(data);
-      setFilteredMedicines(data);
-    } catch (err) {
+    } catch {
       setError('Failed to load medicines. Please try again.');
-      console.error('Error fetching medicines:', err);
     } finally {
       setLoading(false);
     }
@@ -53,11 +33,9 @@ const ViewAllMedicines = () => {
     if (window.confirm(`Are you sure you want to delete ${name}?`)) {
       try {
         await deleteMedicine(id);
-        alert('Medicine deleted successfully!');
-        fetchMedicines(); // Refresh list
-      } catch (err) {
-        alert('Failed to delete medicine. Please try again.');
-        console.error('Error deleting medicine:', err);
+        fetchMedicines();
+      } catch {
+        alert('Failed to delete medicine.');
       }
     }
   };
@@ -70,7 +48,12 @@ const ViewAllMedicines = () => {
     navigate('/pharmacist/add-medicine');
   };
 
-  // Pagination logic
+  const filteredMedicines = medicines.filter((medicine) => 
+    medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (medicine.generic_name && medicine.generic_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (medicine.category && medicine.category.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentMedicines = filteredMedicines.slice(indexOfFirstItem, indexOfLastItem);
@@ -78,61 +61,50 @@ const ViewAllMedicines = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner">Loading medicines...</div>
-      </div>
-    );
-  }
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    if (totalPages <= 6) {
+      for (let i=1; i<=totalPages; i++) pageNumbers.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pageNumbers.push(1, 2, 3, 4, '...', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pageNumbers.push(1, '...', totalPages-3, totalPages-2, totalPages-1, totalPages);
+      } else {
+        pageNumbers.push(1, '...', currentPage-1, currentPage, currentPage+1, '...', totalPages);
+      }
+    }
+    return pageNumbers;
+  };
 
-  if (error) {
-    return (
-      <div className="error-container">
-        <div className="error-message">
-          <p>{error}</p>
-          <button onClick={fetchMedicines}>Retry</button>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="loading">Loading medicines...</div>;
+  if (error) return <div className="error">{error} <button onClick={fetchMedicines}>Retry</button></div>;
 
   return (
     <div className="view-medicines-container">
-      {/* Header Section */}
-      <div className="medicines-header">
+      <div className="inventory-toolbar">
         <h1>Medicine Inventory</h1>
-        <button className="add-medicine-btn" onClick={handleAddNew}>
-          + Add New Medicine
-        </button>
-      </div>
-
-      {/* Search and Stats Section */}
-      <div className="search-stats-section">
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search by name, generic name, or category..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-          <span className="search-icon">🔍</span>
+        <div className="toolbar-actions">
+          <Link to="/pharmacist" className="dashboard-btn">🏠 Dashboard</Link>
+          <button className="add-medicine-btn" onClick={handleAddNew}>+ Add Medicine</button>
         </div>
-        <div className="inventory-stats">
+      </div>
+      <div className="filters-row">
+        <input 
+          className="search-input"
+          placeholder="Search by name, category..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          autoFocus
+        />
+        <div className="right-badges">
           <span className="stat-badge">Total: {filteredMedicines.length}</span>
-          <span className="stat-badge low-stock">
-            Low Stock: {filteredMedicines.filter(m => m.stock < 20).length}
-          </span>
+          <span className="stat-badge low-stock">Low Stock: {filteredMedicines.filter(m=>m.stock<20).length}</span>
         </div>
       </div>
-
-      {/* Medicines Table */}
       <div className="table-container">
         {currentMedicines.length === 0 ? (
-          <div className="no-data">
-            <p>No medicines found</p>
-          </div>
+          <div className="no-data">No medicines found</div>
         ) : (
           <table className="medicines-table">
             <thead>
@@ -148,36 +120,22 @@ const ViewAllMedicines = () => {
               </tr>
             </thead>
             <tbody>
-              {currentMedicines.map((medicine) => (
-                <tr key={medicine.id} className={medicine.stock < 20 ? 'low-stock-row' : ''}>
-                  <td>{medicine.id}</td>
-                  <td className="medicine-name">{medicine.name}</td>
-                  <td>{medicine.generic_name || '-'}</td>
+              {currentMedicines.map(med => (
+                <tr key={med.id} className={med.stock === 0 ? 'critical-stock-row' : med.stock < 20 ? 'low-stock-row' : ''}>
+                  <td>{med.id}</td>
+                  <td className="medicine-name">{med.name || <span className="empty-cell">N/A</span>}</td>
+                  <td>{med.generic_name || <span className="empty-cell">N/A</span>}</td>
+                  <td>{med.category ? <span className="category-badge">{med.category}</span> : <span className="empty-cell">N/A</span>}</td>
+                  <td>{med.manufacturer || <span className="empty-cell">N/A</span>}</td>
                   <td>
-                    <span className="category-badge">{medicine.category || '-'}</span>
-                  </td>
-                  <td>{medicine.manufacturer || '-'}</td>
-                  <td>
-                    <span className={`stock-badge ${medicine.stock < 20 ? 'low' : 'normal'}`}>
-                      {medicine.stock}
+                    <span className={`stock-badge ${med.stock === 0 ? 'critical' : med.stock < 20 ? 'low' : 'normal'}`}>
+                      {med.stock}
                     </span>
                   </td>
-                  <td>₹{parseFloat(medicine.price_per_unit).toFixed(2)}</td>
+                  <td>₹{Number(med.price_per_unit).toFixed(2)}</td>
                   <td className="action-buttons">
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleEdit(medicine.id)}
-                      title="Edit Medicine"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(medicine.id, medicine.name)}
-                      title="Delete Medicine"
-                    >
-                      🗑️
-                    </button>
+                    <button className="edit-btn" title="Edit Medicine" onClick={() => handleEdit(med.id)}>✏️</button>
+                    <button className="delete-btn" title="Delete Medicine" onClick={() => handleDelete(med.id, med.name)}>🗑️</button>
                   </td>
                 </tr>
               ))}
@@ -185,45 +143,23 @@ const ViewAllMedicines = () => {
           </table>
         )}
       </div>
-
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="pagination">
-          <button
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="pagination-btn"
-          >
-            Previous
-          </button>
-          
-          <div className="page-numbers">
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => paginate(index + 1)}
-                className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
-              >
-                {index + 1}
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="pagination-btn"
-          >
-            Next
-          </button>
+          <button onClick={() => paginate(1)} disabled={currentPage === 1} className="pagination-btn" aria-label="First page">&laquo;</button>
+          <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className="pagination-btn" aria-label="Previous page">Prev</button>
+          {getPageNumbers().map((num,i) =>
+            typeof num === 'number' ? (
+              <button key={num} onClick={() => paginate(num)} className={`page-btn${currentPage === num ? ' active' : ''}`}>{num}</button>
+            ) : (
+              <span key={i} className="ellipsis">…</span>
+            )
+          )}
+          <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} className="pagination-btn" aria-label="Next page">Next</button>
+          <button onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} className="pagination-btn" aria-label="Last page">&raquo;</button>
         </div>
       )}
-
-      {/* Summary Footer */}
       <div className="table-footer">
-        <p>
-          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredMedicines.length)} of {filteredMedicines.length} medicines
-        </p>
+        Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredMedicines.length)} of {filteredMedicines.length} medicines
       </div>
     </div>
   );
